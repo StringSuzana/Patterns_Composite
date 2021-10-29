@@ -6,35 +6,45 @@ namespace Composite
 
     public class Program
     {
-
-
+        /**
+         *  <<<    -5 * (9/6) / (7+(2-1.5))   >>>
+         * 
+         *                (division)
+         *                /        \ 
+         *          (division)    (addition)
+         *           /      \          /   \
+         *         -5    (division)   7  (substraction)
+         *                 /     \          /      \
+         *                9       6        2       -1.5
+         *                
+         * **/
         static void Main(string[] args)
         {
+
             Func<double, double, double> MULTIPLY = (x, y) => x * y;
             Func<double, double, double> ADD = (x, y) => x + y;
             Func<double, double, double> SUBSTRACT = (x, y) => x - y;
             Func<double, double, double> DIVISION = (x, y) => x / y;
 
             var zero = new NumericNode(0.0);
-            var one = new NumericNode(1.0);
+            var one_five = new NumericNode(1.5);
             var two = new NumericNode(2.0);
-            var three = new NumericNode(3.0);
-            var five = new NumericNode(5.0);
+            var minus_five = new NumericNode(-5.0);
+            var six = new NumericNode(6.0);
+            var seven = new NumericNode(7.0);
+            var nine = new NumericNode(9.0);
 
-            ArithmeticNode add_one_and_two = new ArithmeticNode(ADD, one, two);
-            ArithmeticNode add_one_and_three = new ArithmeticNode(ADD, one, add_one_and_two);
-            ArithmeticNode multiply_four_and_five = new ArithmeticNode(MULTIPLY, add_one_and_three, five);
+            ArithmeticNode minus_five_times_nine_div_six = new ArithmeticNode(MULTIPLY, minus_five, new ArithmeticNode(DIVISION, nine, six));
+            ArithmeticNode seven_plus_two_minus_one_five = new ArithmeticNode(ADD, seven, new ArithmeticNode(SUBSTRACT, two, one_five));
 
-
-            ArithmeticNode divide_twenty_by_zero = new ArithmeticNode(DIVISION, multiply_four_and_five, zero);
-            ArithmeticNode divide_twenty_by_three = new ArithmeticNode(DIVISION, multiply_four_and_five, three);
+            ArithmeticNode divide_twenty_by_three = new ArithmeticNode(DIVISION, minus_five_times_nine_div_six, seven_plus_two_minus_one_five);
 
             ArithmeticExpressionComposite tree = new ArithmeticExpressionComposite();
             tree.insert_whole_expression(divide_twenty_by_three);
             Console.WriteLine(tree.calculate());
         }
     }
-    //The operand => Component can be a number, or another arithmetic expression.
+    /**The operand => Component can be a number, or another arithmetic expression.**/
     public abstract class Component
     {
 
@@ -42,7 +52,7 @@ namespace Composite
         public virtual Component RightNode { get; set; }
         public virtual double value { get; set; }
         public virtual bool is_composite { get; set; }
- 
+
         public virtual double calculate_arithmetic_operation(Component node)
         {
             if (is_composite)
@@ -69,12 +79,12 @@ namespace Composite
             this.LeftNode = left_component;
             this.RightNode = right_component;
         }
-        
+
         public override double calculate_arithmetic_operation(Component root)
         {
             if (LeftNode.is_composite == false && RightNode.is_composite == false)
             {
-               
+
                 this.value = operation(LeftNode.value, RightNode.value);
                 this.is_composite = false;
             }
